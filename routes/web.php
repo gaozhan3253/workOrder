@@ -11,6 +11,5 @@
 |
 */
 
-Route::get('/', function () {
-    return view('welcome');
-});
+##post##
+Route::post('/createWorkOrder','ApiController@createWorkOrder');
