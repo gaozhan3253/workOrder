@@ -3,6 +3,8 @@
 namespace App\Listeners;
 
 use App\Events\CreateWorkOrderEvent;
+use App\Jobs\PushChannel;
+use App\Services\WorkOrderService;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
 
@@ -27,5 +29,10 @@ class CreateWorkEventListener
     public function handle(CreateWorkOrderEvent $event)
     {
         //
+        $orderId = $event->workOrder->orderId;
+        $workOrder = (new WorkOrderService())->getWorkOrder($orderId);
+
+        $workOrderChannel = (new WorkOrderService())->getChannel($workOrder->channel);
+        dispatch(new PushChannel($workOrderChannel));
     }
 }

@@ -2,6 +2,7 @@
 
 namespace App\Events;
 
+use App\Models\WorkModel;
 use Illuminate\Broadcasting\Channel;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Broadcasting\PrivateChannel;
@@ -14,14 +15,16 @@ class CreateWorkOrderEvent
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
+    public $workOrder;
     /**
      * Create a new event instance.
      *
      * @return void
      */
-    public function __construct()
+    public function __construct(WorkModel $workOrder)
     {
         //
+        $this->workOrder = $workOrder;
     }
 
     /**
