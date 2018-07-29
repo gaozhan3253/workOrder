@@ -2,9 +2,9 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
 
-class ServiceOrder extends Model
+class ServiceOrder extends Base
 {
-    //
+   protected $guarded  = [];
+
 }

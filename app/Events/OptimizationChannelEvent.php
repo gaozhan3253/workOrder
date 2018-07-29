@@ -11,11 +11,12 @@ use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 
-class CreateWorkOrderEvent
+class OptimizationChannelEvent
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
-
+    
     public $workOrder;
+
     /**
      * Create a new event instance.
      *

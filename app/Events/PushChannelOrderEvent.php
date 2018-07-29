@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Events;
+namespace App\events;
 
 use App\Models\ServiceOrder;
 use Illuminate\Broadcasting\Channel;
@@ -11,7 +11,7 @@ use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 
-class CreateWorkOrderEvent
+class PushChannelOrderEvent
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
@@ -26,6 +26,7 @@ class CreateWorkOrderEvent
         //
         $this->workOrder = $workOrder;
     }
+
 
     /**
      * Get the channels the event should broadcast on.

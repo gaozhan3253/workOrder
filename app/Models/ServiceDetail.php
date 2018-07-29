@@ -2,9 +2,9 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
-
-class ServiceDetail extends Model
+class ServiceDetail extends Base
 {
     //
+    protected $guarded  = [];
+
 }

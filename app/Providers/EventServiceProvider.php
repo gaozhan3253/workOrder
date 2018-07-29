@@ -13,9 +13,18 @@ class EventServiceProvider extends ServiceProvider
      * @var array
      */
     protected $listen = [
+        //创建订单事件
         'App\Events\CreateWorkOrderEvent' => [
-            'App\Listeners\CreateWorkEventListener',
+            'App\Listeners\CreateWorkOrderEventListener',
         ],
+        //优选渠道事件
+        'App\Events\OptimizationChannelEvent'=>[
+          'App\Listeners\OptimizationChannelEventListener'
+        ],
+        //推送渠道物流订单事件
+        'App\events\PushChannelOrderEvent'=>[
+            'App\Listeners\PushChannelOrderEventListener'
+        ]
     ];
 
     /**

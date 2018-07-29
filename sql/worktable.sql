@@ -2,18 +2,90 @@
 Navicat MySQL Data Transfer
 
 Source Server         : localhost
-Source Server Version : 50710
+Source Server Version : 50722
 Source Host           : localhost:3306
 Source Database       : workorder
 
 Target Server Type    : MYSQL
-Target Server Version : 50710
+Target Server Version : 50722
 File Encoding         : 65001
 
-Date: 2018-07-25 23:28:30
+Date: 2018-07-29 17:40:31
 */
 
 SET FOREIGN_KEY_CHECKS=0;
+
+-- ----------------------------
+-- Table structure for work_failed_jobs
+-- ----------------------------
+DROP TABLE IF EXISTS `work_failed_jobs`;
+CREATE TABLE `work_failed_jobs` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `connection` text COLLATE utf8mb4_unicode_ci NOT NULL,
+  `queue` text COLLATE utf8mb4_unicode_ci NOT NULL,
+  `payload` longtext COLLATE utf8mb4_unicode_ci NOT NULL,
+  `exception` longtext COLLATE utf8mb4_unicode_ci NOT NULL,
+  `failed_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- ----------------------------
+-- Records of work_failed_jobs
+-- ----------------------------
+
+-- ----------------------------
+-- Table structure for work_jobs
+-- ----------------------------
+DROP TABLE IF EXISTS `work_jobs`;
+CREATE TABLE `work_jobs` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `queue` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `payload` longtext COLLATE utf8mb4_unicode_ci NOT NULL,
+  `attempts` tinyint(3) unsigned NOT NULL,
+  `reserved_at` int(10) unsigned DEFAULT NULL,
+  `available_at` int(10) unsigned NOT NULL,
+  `created_at` int(10) unsigned NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `jobs_queue_index` (`queue`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- ----------------------------
+-- Records of work_jobs
+-- ----------------------------
+
+-- ----------------------------
+-- Table structure for work_migrations
+-- ----------------------------
+DROP TABLE IF EXISTS `work_migrations`;
+CREATE TABLE `work_migrations` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `migration` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `batch` int(11) NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- ----------------------------
+-- Records of work_migrations
+-- ----------------------------
+INSERT INTO `work_migrations` VALUES ('1', '2014_10_12_000000_create_users_table', '1');
+INSERT INTO `work_migrations` VALUES ('2', '2014_10_12_100000_create_password_resets_table', '1');
+INSERT INTO `work_migrations` VALUES ('3', '2018_07_29_085747_create_jobs_table', '2');
+INSERT INTO `work_migrations` VALUES ('4', '2018_07_29_091146_create_failed_jobs_table', '3');
+
+-- ----------------------------
+-- Table structure for work_password_resets
+-- ----------------------------
+DROP TABLE IF EXISTS `work_password_resets`;
+CREATE TABLE `work_password_resets` (
+  `email` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `token` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  KEY `password_resets_email_index` (`email`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- ----------------------------
+-- Records of work_password_resets
+-- ----------------------------
 
 -- ----------------------------
 -- Table structure for work_service_details
@@ -85,4 +157,24 @@ CREATE TABLE `work_service_orders` (
 
 -- ----------------------------
 -- Records of work_service_orders
+-- ----------------------------
+
+-- ----------------------------
+-- Table structure for work_users
+-- ----------------------------
+DROP TABLE IF EXISTS `work_users`;
+CREATE TABLE `work_users` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `name` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `email` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `password` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `remember_token` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `users_email_unique` (`email`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- ----------------------------
+-- Records of work_users
 -- ----------------------------

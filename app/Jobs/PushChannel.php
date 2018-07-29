@@ -7,11 +7,13 @@ use Illuminate\Queue\SerializesModels;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
+use PHPUnit\Framework\MockObject\Stub\Exception;
 
 class PushChannel implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
+    public $workOrder;
     /**
      * Create a new job instance.
      *
@@ -20,6 +22,7 @@ class PushChannel implements ShouldQueue
     public function __construct($workOrder)
     {
         //
+        $this->workOrder = $workOrder;
     }
 
     /**
@@ -30,5 +33,10 @@ class PushChannel implements ShouldQueue
     public function handle()
     {
         //
+        Log::info('执行渠道对接队列'.$this->workOrder->order_id);
+    }
+    public function failed(Exception $e)
+    {
+        Log::info('执行渠道对接队列失败');
     }
 }
