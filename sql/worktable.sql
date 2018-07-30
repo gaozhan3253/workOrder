@@ -178,3 +178,20 @@ CREATE TABLE `work_users` (
 -- ----------------------------
 -- Records of work_users
 -- ----------------------------
+-- ----------------------------
+-- Table structure for work_channel_configs
+-- ----------------------------
+DROP TABLE IF EXISTS `work_channel_configs`;
+CREATE TABLE `work_channel_configs` (
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `channel_code` varchar(128) NOT NULL COMMENT '渠道编码',
+  `classes` varchar(1024) NOT NULL COMMENT '渠道所对应的类(全类名)',
+  `config` text NOT NULL COMMENT '配置信息(json格式)',
+  `status` int(5) NOT NULL DEFAULT '2' COMMENT '1启用 2禁用',
+  `created_by` varchar(128) NOT NULL COMMENT '创建人',
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `updated_by` varchar(128) DEFAULT NULL COMMENT '修改人',
+  `updated_at` timestamp NULL DEFAULT NULL COMMENT '修改时间',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `channel_code` (`channel_code`)
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8 ROW_FORMAT=COMPACT COMMENT='渠道配置';

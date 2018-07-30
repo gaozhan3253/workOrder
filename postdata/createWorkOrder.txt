@@ -11,7 +11,7 @@
         "freight_currency_code":"USD",
         "service_charge":"6.7",
         "rate":"1",
-        "channel_id":"11",
+        "channel_id":"101",
         "shipping_id":"12",
         "country":"US",
         "buyer_country_code":"US",

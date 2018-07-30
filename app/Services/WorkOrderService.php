@@ -73,12 +73,5 @@ class WorkOrderService extends Service
         }
     }
 
-    /**
-     * 根据渠道id 获取渠道对象
-     * @param $channel_id
-     */
-    public static function getChannel($channel_id)
-    {
-        return false;
-    }
+
 }

@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\Log;
 
 class OptimizationChannelEventListener implements ShouldQueue
 {
-//    public $queue = 'optimization_channel_event'; // 任务应该发送到的队列的名称
+    public $queue = 'event'; // 任务应该发送到的队列的名称
     /**
      * Create the event listener.
      *
