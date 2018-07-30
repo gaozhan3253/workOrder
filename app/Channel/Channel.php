@@ -15,18 +15,21 @@ interface Channel
      */
     public function send();
 
+
     /**
-     * 对接成功或失败回调
-     * @param string|bool $data
-     * @return bool
+     * 请求成功后回调
+     * @param array $data 请求信息
+     * @return bool 当前对接对象是否对接成功
      */
     public function finish();
 
     /**
-     * 生成对应的数据
+     * 组装请求的数据
      * @param array $data 数据
      * @param string $type 数据类型
      * @return array
      */
     public function formatData(array $data, $type = '');
+
+    public function writeLog($prefix,$body);
 }

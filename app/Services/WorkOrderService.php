@@ -74,4 +74,10 @@ class WorkOrderService extends Service
     }
 
 
+    public function getWorkOrder($orderId)
+    {
+        return ServiceOrder::where(['order_id'=>$orderId])->first();
+    }
+
+
 }

@@ -45,10 +45,9 @@ class PushChannelOrderEventListener implements ShouldQueue
         }
         Log::info('获取到订单渠道配置：'.$workChannelConfig->id);
         $workChannel = WorkChannelService::getChannel($workChannelConfig);
-        var_dump($workChannel);
         if($workChannel){
-            Log::info('：渠道对接对象'.$workChannel);
-//                dispatch((new PushChannel($workChannel))->onQueue('push_channel_order'));
+            Log::info('：获取到渠道信息'.$workChannel);
+                dispatch((new PushChannel($workChannel,$orderId))->onQueue('push_channel_order'));
         }else{
             Log::error('：未获取到渠道信息'.$orderId);
         }

@@ -11,7 +11,7 @@ namespace App\Channel\Core;
 
 use App\Channel\Channel;
 
-class BaseChannel implements Channel
+abstract class BaseChannel implements Channel
 {
     const PUSH_ORDER = 'pushOrder';  //推送订单
     const GET_TRUNKING = 'getTrunking';  //获取追踪码
@@ -249,4 +249,12 @@ class BaseChannel implements Channel
      * @return array
      */
     abstract public function formatData(array $data, $type = '');
+
+    /**
+     * 日志
+     * @param $prefix
+     * @param $body
+     * @return mixed
+     */
+    abstract public function writeLog($prefix, $body);
 }
