@@ -12,7 +12,7 @@ use App\Models\ServiceOrder;
 use App\Models\ServiceDetail;
 use TheSeer\Tokenizer\Exception;
 
-class WorkOrderService extends Service
+class WorkOrderService extends Base
 {
     /**
      * 创建订单业务逻辑

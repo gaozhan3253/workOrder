@@ -10,8 +10,9 @@
 | contains the "web" middleware group. Now create something great!
 |
 */
-Route::get('/',function (){
+Route::get('/', function () {
     return '1';
 });
 
-Route::any('createWorkOrder','ApiController@createWorkOrder');
+Route::any('createWorkOrder', 'ApiController@createWorkOrder');
+Route::any('test', 'TestController@test');

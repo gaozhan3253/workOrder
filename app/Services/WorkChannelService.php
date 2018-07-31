@@ -11,9 +11,10 @@ use App\Models\ChannelConfig;
 use DB;
 use App\Models\ServiceOrder;
 use App\Models\ServiceDetail;
+use Illuminate\Support\Facades\Log;
 use TheSeer\Tokenizer\Exception;
 
-class WorkChannelService extends Service
+class WorkChannelService extends Base
 {
     /**
      * 根据渠道id 获取渠道对象
