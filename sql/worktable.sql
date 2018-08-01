@@ -181,6 +181,10 @@ CREATE TABLE `work_users` (
 -- ----------------------------
 -- Table structure for work_channel_configs
 -- ----------------------------
+
+-- ----------------------------
+-- Table structure for work_channel_configs
+-- ----------------------------
 DROP TABLE IF EXISTS `work_channel_configs`;
 CREATE TABLE `work_channel_configs` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
@@ -195,3 +199,8 @@ CREATE TABLE `work_channel_configs` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `channel_code` (`channel_code`)
 ) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8 ROW_FORMAT=COMPACT COMMENT='渠道配置';
+
+-- ----------------------------
+-- Records of work_channel_configs
+-- ----------------------------
+INSERT INTO `work_channel_configs` VALUES ('1', '101', 'App\\Channel\\Core\\Postal\\ChinaFoshanPostal', '{\"name\":\"gaozhan\"}', '1', 'gaozhan', '2018-07-30 19:34:55', null, null);

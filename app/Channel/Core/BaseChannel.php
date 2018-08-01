@@ -9,9 +9,9 @@
 namespace App\Channel\Core;
 
 
-use App\Channel\Channel;
+use Illuminate\Support\Facades\Log;
 
-abstract class BaseChannel implements Channel
+abstract class BaseChannel
 {
     const PUSH_ORDER = 'pushOrder';  //推送订单
     const GET_TRUNKING = 'getTrunking';  //获取追踪码
@@ -27,6 +27,14 @@ abstract class BaseChannel implements Channel
 
     protected $errors = [];    //错误信息
     protected $orderData = [];  //订单数据
+
+    public function __construct($config = [])
+    {
+        if(is_array($config)){
+            $this->config = array_merge($this->config, $config);
+        }
+        $this->init();
+    }
 
     /**
      * 配置信息
@@ -59,11 +67,11 @@ abstract class BaseChannel implements Channel
 
 
     /**
-     * 初始化调用,如有需要请用子类覆盖此方法
-     * @return void
+     * 初始化,子类要用请覆盖
      */
     public function init()
     {
+
     }
 
 
@@ -130,6 +138,29 @@ abstract class BaseChannel implements Channel
 
 
     /**
+     * 获取错误信息
+     * @return array
+     */
+    protected function getError()
+    {
+        return $this->errors;
+    }
+
+    /**
+     * 设置错误信息
+     * @param string|array $message
+     * @return $this
+     * @author longli
+     */
+    protected function setError($message)
+    {
+        is_array($message)
+            ? $this->errors = $message
+            : [$message];
+        return $this;
+    }
+
+    /**
      * 响应体
      * @var array
      */
@@ -156,7 +187,7 @@ abstract class BaseChannel implements Channel
 
 
 
-    public function send()
+    protected function send()
     {
         $requestMethod = mb_strtoupper($this->requestMethod);
 
@@ -181,42 +212,48 @@ abstract class BaseChannel implements Channel
     {
         $method = mb_strtoupper($this->method);
         $requestBody = $this->getRequestBody();
-        //创建一个新cURL资源
-        $curl = curl_init();
-        curl_setopt($curl, CURLOPT_CONNECTTIMEOUT, $this->connectTimeOut);
-        curl_setopt($curl, CURLOPT_TIMEOUT, $this->timeOut);
+        try{
+            //创建一个新cURL资源
+            $curl = curl_init();
+            curl_setopt($curl, CURLOPT_CONNECTTIMEOUT, $this->connectTimeOut);
+            curl_setopt($curl, CURLOPT_TIMEOUT, $this->timeOut);
 
-        //设置URL和相应的选项
-        if ($method == self::REQUEST_METHOD_CURL_POST) {
-            curl_setopt($curl, CURLOPT_URL, $this->url);
-            curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
-            curl_setopt($curl, CURLOPT_VERBOSE, 1);
-            curl_setopt($curl, CURLOPT_POST, 1);
-            curl_setopt($curl, CURLOPT_POSTFIELDS, $requestBody);
-        } else {
-            if (is_array($requestBody)) {
-                $requestBody = http_build_query($requestBody);
+            //设置URL和相应的选项
+            if ($method == self::REQUEST_METHOD_CURL_POST) {
+                curl_setopt($curl, CURLOPT_URL, $this->url);
+                curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
+                curl_setopt($curl, CURLOPT_VERBOSE, 1);
+                curl_setopt($curl, CURLOPT_POST, 1);
+                curl_setopt($curl, CURLOPT_POSTFIELDS, $requestBody);
+            } else {
+                if (is_array($requestBody)) {
+                    $requestBody = http_build_query($requestBody);
+                }
+                $queryString = strpos($this->url, '?') !== false ? '&' : '?';
+                curl_setopt($curl, CURLOPT_URL, $this->url . $queryString . $requestBody);
+                curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
             }
-            $queryString = strpos($this->url, '?') !== false ? '&' : '?';
-            curl_setopt($curl, CURLOPT_URL, $this->url . $queryString . $requestBody);
-            curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
-        }
-        curl_setopt($curl, CURLOPT_HTTPHEADER, $this->headers);
-        if ($this->https) {
-            curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, FALSE); // 对认证证书来源的检查
-            curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, FALSE); // 从证书中检查SSL加密算法是否存在
+            curl_setopt($curl, CURLOPT_HTTPHEADER, $this->headers);
+            if ($this->https) {
+                curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, FALSE); // 对认证证书来源的检查
+                curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, FALSE); // 从证书中检查SSL加密算法是否存在
+            }
+
+            //抓取URL并把它传递给浏览器
+            $response = curl_exec($curl);
+            //关闭cURL资源，并且释放系统资源
+            curl_close($curl);
+            if ($response === FALSE){
+                return false;
+            }
+            $jsonResponse = json_decode($response, true);
+
+            $this->setResponseBody($jsonResponse?$jsonResponse:$response);
+        }catch (\Exception $exception){
+            $this->setError($exception->getMessage());
         }
 
-        //抓取URL并把它传递给浏览器
-        $response = curl_exec($curl);
-        //关闭cURL资源，并且释放系统资源
-        curl_close($curl);
-        if ($response === FALSE){
-            return false;
-        }
-        $jsonResponse = json_decode($response, true);
-
-        $this->setResponseBody($jsonResponse?$jsonResponse:$response);
+        return $this;
     }
 
     /**
@@ -225,22 +262,31 @@ abstract class BaseChannel implements Channel
      */
     protected function sendSoapRequest()
     {
-        $client = new \SoapClient ($this->url, $this->headers);
-        $response = $client->__call($this->method, $this->requestBody);
-        $jsonResponse = json_decode($response->out, true);
-        if ($jsonResponse) {
-            return $jsonResponse;
+        try {
+            $client = new \SoapClient ($this->url, $this->headers);
+            $response = $client->__soapCall($this->method, $this->requestBody);
+            $jsonResponse = json_decode($response, true);
+
+            $this->setResponseBody($jsonResponse ? $jsonResponse : $response);
+        }catch (\SoapFault $fault){
+            $this->setError($fault->getMessage());
         }
-        return $response;
+        return $this;
     }
 
-
+    /**
+     * 入口文件
+     * @param array $data
+     * @param string $dockType
+     * @return mixed
+     */
+    abstract public function run(array $data, $dockType = '');
     /**
      * 请求成功后回调
      * @param array $data 请求信息
      * @return bool 当前对接对象是否对接成功
      */
-    abstract public function finish();
+    abstract protected function finish();
 
     /**
      * 组装请求的数据
@@ -248,7 +294,8 @@ abstract class BaseChannel implements Channel
      * @param string $type 数据类型
      * @return array
      */
-    abstract public function formatData(array $data, $type = '');
+    abstract protected function formatData($data, $type = '');
+
 
     /**
      * 日志
@@ -256,5 +303,5 @@ abstract class BaseChannel implements Channel
      * @param $body
      * @return mixed
      */
-    abstract public function writeLog($prefix, $body);
+    abstract protected function writeLog($prefix, $body);
 }

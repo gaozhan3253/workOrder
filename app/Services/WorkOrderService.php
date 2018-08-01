@@ -74,7 +74,12 @@ class WorkOrderService extends Base
     }
 
 
-    public function getWorkOrder($orderId)
+    /**
+     * 根据订单号查询订单
+     * @param $orderId
+     * @return mixed
+     */
+    public static function getWorkOrder($orderId)
     {
         return ServiceOrder::where(['order_id'=>$orderId])->first();
     }

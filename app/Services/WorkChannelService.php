@@ -33,6 +33,6 @@ class WorkChannelService extends Base
             return false;
         }
         if(!class_exists($classes)) return false;
-        return new $classes;
+        return new $classes(json_decode($config,true));
     }
 }
