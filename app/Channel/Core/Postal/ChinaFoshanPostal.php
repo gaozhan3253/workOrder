@@ -10,6 +10,9 @@ namespace App\Channel\Core\Postal;
 
 
 use App\Channel\Core\BaseChannel;
+use App\Services\WorkOrderService;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Log;
 
 class ChinaFoshanPostal extends BaseChannel
 {
@@ -19,9 +22,9 @@ class ChinaFoshanPostal extends BaseChannel
      */
     protected $config = [
         // 请求方式 curl|soap
-        'requestMethod' => 'curl',
-        // 请求方式 get|post
-        'method' => 'post',
+        'requestMethod' => 'soap',
+        // 请求方式 get|post|soap-method
+        'method' => 'prepareImportOrder',
         //是否https
         'https' => false,
         // 请求头
@@ -29,13 +32,15 @@ class ChinaFoshanPostal extends BaseChannel
         // 请求的数据类型，只对post请求生效, (xml|json|array)
         'dataType' => 'json',
         // 请求地址
-        'url' => '',
+        'url' => 'http://test01.routdata.com/szsdsselfsys/services/mailSearch?WSDL',
+        //token
+        'token'=>'b963fe00d9ba45bc63e9f90f9a70b9c4',
         // 要合并的请求体，只对post请求生效
         'requestBody' => [],
         // 额外参数
         'params' => [],
         //接口对接顺序
-        'pushDockSequence' => [self::PUSH_ORDER, self::GET_TRUNKING, self::GET_LABEL, self::UPDATE_WEIGHT],
+        'pushDockSequence' => [self::PUSH_ORDER],
         //接口对接链接接口超时时间
         'connectTimeOut' => 10,
         //接口对接过程超时时间
@@ -48,47 +53,99 @@ class ChinaFoshanPostal extends BaseChannel
     }
 
 
-    public function run(array $data, $dockType = '')
+    public function run(Model $workOrder, $dockType = '')
     {
         $this->dockType = $dockType;
-        return $this->formatData($data, $dockType)->send();
+        return $this->formatData($workOrder, $dockType)->send();
     }
 
-    protected function formatData($data, $dockType = '')
+    protected function formatData($workOrder, $dockType = '')
     {
         switch ($dockType) {
             case self::PUSH_ORDER:
-                $this->pushOrderData($data);
+                $this->pushOrderData($workOrder);
                 break;
             case self::GET_TRUNKING;
-                $this->getTrunkingData($data);
+                $this->getTrunkingData($workOrder);
                 break;
             case self::GET_LABEL:
-                $this->getLabel($data);
+                $this->getLabel($workOrder);
                 break;
             case self::UPDATE_WEIGHT:
-                $this->updateWeight($data);
+                $this->updateWeight($workOrder);
                 break;
         }
         return $this;
     }
 
-    protected function pushOrderData(array $data)
+    protected function pushOrderData(Model $workOrder)
+    {
+        if($workOrder->is_trunking ==1){
+            $orderType = 4;
+        }else{
+            $orderType = 5;
+        }
+        //获取订单总重量
+        $subWeight = WorkOrderService::getOrderSubWeight($workOrder->order_id);
+
+        $buyer = $workOrder->serviceOrderBuyer;
+
+        $innerList[] = array(
+            'innerName' => '',
+            'innerNameEn' => 'innerNameEn',
+            'innerQty' => '10',
+            'innerWeight' => '10',
+            'innerPrice' => '20',
+            'sku' => 'xx',
+            'original' => 'CN',
+            'customsCode' => '',
+            'innerIngredient' => ''
+        );
+
+        $requestData = [
+            'custToken' => $this->token,
+            'orderType' => $orderType,
+            'logisticsProduct' => '637',
+            'orderId' => $workOrder->order_id,
+            'mailWeight' => $subWeight,
+            'sendPostCode' => '518000',
+            'sendUserName' => 'Ms luo',
+            'sendUserAddress' => 'huanancheng',
+            'sendUserTel' => '18118722470',
+            'sendMobilePhone' => '18118722470',
+            'sendEngProvince' => 'guangdong',
+            'sendEngCity' => 'shenzhen',
+            'accPostCode' => $buyer->buyer_zip,
+            'accUserName' => $buyer->buyer_name,
+            'accUserAddress' => $buyer->buyer_address,
+            'accTel' => $buyer->buyer_phone,
+            'accMobilePhone' => $buyer->buyer_mobile,
+            'accCity' => $buyer->buyer_city,
+            'accState' => $buyer->buyer_state,
+            'accEmail' => $buyer->buyer_email,
+            'countryName' => $buyer->buyer_country_code,
+            'countryEnName' => $buyer->buyer_country,
+            'mailCode' => ' ',
+            'sjDate' => '',
+            'remark' => '',
+            'innerType' => '1',
+            'innerList' => $innerList
+        ];
+        $this->setRequestBody(json_encode($requestData));
+        return $this;
+    }
+
+    protected function getTrunkingData(Model $workOrder)
     {
         return $this;
     }
 
-    protected function getTrunkingData(array $data)
+    protected function getLabel(Model $workOrder)
     {
         return $this;
     }
 
-    protected function getLabel(array $data)
-    {
-        return $this;
-    }
-
-    protected function updateWeight(array $data)
+    protected function updateWeight(Model $workOrder)
     {
         return $this;
     }
@@ -98,7 +155,10 @@ class ChinaFoshanPostal extends BaseChannel
      */
     protected function finish()
     {
+        Log::info(json_encode($this->getResponseBody()));
+        Log::error(json_encode($this->getError()));
         // TODO: Implement finish() method.
+        return 'end';
     }
 
     protected function writeLog($prefix, $body)

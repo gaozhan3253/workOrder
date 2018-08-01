@@ -7,8 +7,13 @@ class ServiceOrder extends Base
 {
    protected $guarded  = [];
 
-   public function serviceDetails()
+   public function serviceOrderDetails()
    {
-      return $this->hasMany('App\Models\ServiceDetail','order_id','order_id');
+      return $this->hasMany('App\Models\ServiceOrderDetail','order_id','order_id');
+   }
+
+   public function serviceOrderBuyer() 
+   {
+      return $this->belongsTo('App\Models\ServiceOrderBuyer','order_id','order_id');
    }
 }

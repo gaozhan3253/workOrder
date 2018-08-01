@@ -9,7 +9,9 @@
 namespace App\Channel\Core;
 
 
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Log;
+use League\Flysystem\Exception;
 
 abstract class BaseChannel
 {
@@ -113,9 +115,9 @@ abstract class BaseChannel
 
     /**
      * 请求体
-     * @var array
+     * @var string
      */
-    protected $requestBody = [];
+    protected $requestBody = '';
 
     /**
      * 获取请求体
@@ -154,9 +156,7 @@ abstract class BaseChannel
      */
     protected function setError($message)
     {
-        is_array($message)
-            ? $this->errors = $message
-            : [$message];
+        $this->errors = is_array($message)?  $message :  [$message];
         return $this;
     }
 
@@ -193,10 +193,12 @@ abstract class BaseChannel
 
         switch ($requestMethod) {
             case self::REQUEST_METHOD_CURL:
+                Log::info('curl');
                 $this->sendCurlRequest();
                 break;
 
             case self::REQUEST_METHOD_SOAP:
+                Log::info('soap');
                 $this->sendSoapRequest();
                 break;
         }
@@ -266,7 +268,6 @@ abstract class BaseChannel
             $client = new \SoapClient ($this->url, $this->headers);
             $response = $client->__soapCall($this->method, $this->requestBody);
             $jsonResponse = json_decode($response, true);
-
             $this->setResponseBody($jsonResponse ? $jsonResponse : $response);
         }catch (\SoapFault $fault){
             $this->setError($fault->getMessage());
@@ -275,12 +276,12 @@ abstract class BaseChannel
     }
 
     /**
-     * 入口文件
-     * @param array $data
+     * 执行入口
+     * @param Model $workOrder
      * @param string $dockType
      * @return mixed
      */
-    abstract public function run(array $data, $dockType = '');
+    abstract public function run(Model $workOrder, $dockType = '');
     /**
      * 请求成功后回调
      * @param array $data 请求信息

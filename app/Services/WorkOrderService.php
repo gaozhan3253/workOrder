@@ -9,7 +9,7 @@
 namespace App\Services;
 use DB;
 use App\Models\ServiceOrder;
-use App\Models\ServiceDetail;
+use App\Models\ServiceOrderDetail;
 use TheSeer\Tokenizer\Exception;
 
 class WorkOrderService extends Base
@@ -67,7 +67,7 @@ class WorkOrderService extends Base
     protected static function createDetail($detail)
     {
         try{
-            return ServiceDetail::insert($detail);
+            return ServiceOrderDetail::insert($detail);
         }catch (Exception $exception){
             throw $exception;
         }
@@ -82,6 +82,22 @@ class WorkOrderService extends Base
     public static function getWorkOrder($orderId)
     {
         return ServiceOrder::where(['order_id'=>$orderId])->first();
+    }
+
+    /**
+     * 根据订单号获取订单商品的总重量
+     * @param $orderId
+     * @return int
+     */
+    public static function getOrderSubWeight($orderId)
+    {
+        $subWeight = 0;
+        $serviceDetails= ServiceOrderDetail::where(['order_id'=>$orderId])->get(['pack_weight','qty']);
+        foreach ($serviceDetails as $detail){
+            $subWeight += round($detail->pack_weight) * $detail->qty;
+        }
+        return (int) $subWeight;
+
     }
 
 

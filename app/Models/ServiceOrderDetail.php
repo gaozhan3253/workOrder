@@ -2,7 +2,7 @@
 
 namespace App\Models;
 
-class ServiceDetail extends Base
+class ServiceOrderDetail extends Base
 {
     //
     protected $guarded  = [];
