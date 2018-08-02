@@ -13,7 +13,6 @@ class ApiController extends Controller
 
     public function createWorkOrder(WorkOrderRequest $request)
     {
-        echo '<pre>';
         $serviceOrder = WorkOrderService::pushOrder($request);
         if ($serviceOrder &&($serviceOrder instanceof ServiceOrder)) {
             //保存成功 触发事件

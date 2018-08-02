@@ -2,7 +2,7 @@
     "order":{
         "order_id":"1153285196457483",
         "platform_num":"平台订单号",
-        "platform_id":"1",
+        "platform_id":"2",
         "account_id":"2",
         "buyer_id":"3",
         "order_total":"4.5",
@@ -21,6 +21,22 @@
         "opt_status":1,
         "dock_status":1
     },
+    "orderbuyer":{
+        "platform_id":"2",
+		"buyer_account":"gaozhan",
+		"buyer_name":"高展",
+		"buyer_phone":"17603008613",
+		"buyer_mobile":"17603008613",
+		"buyer_zip":"518000",
+		"buyer_email":"gaozhan3253@163.com",
+		"buyer_country":"china",
+		"buyer_country_code":"cn",
+		"buyer_state":"guangdong",
+		"buyer_city":"shenzhen",
+		"buyer_town":"longgang",
+		"buyer_address":"pinghu",
+		"buyer_house_number":"001"
+	},
     "orderdetail":[
         {
             "sku":"A001",

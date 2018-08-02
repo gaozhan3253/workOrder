@@ -14,6 +14,6 @@ class ServiceOrder extends Base
 
    public function serviceOrderBuyer() 
    {
-      return $this->belongsTo('App\Models\ServiceOrderBuyer','order_id','order_id');
+      return $this->hasOne('App\Models\ServiceOrderBuyer','order_id','order_id');
    }
 }

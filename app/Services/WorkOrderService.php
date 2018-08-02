@@ -7,6 +7,8 @@
  */
 
 namespace App\Services;
+
+use App\Models\ServiceOrderBuyer;
 use DB;
 use App\Models\ServiceOrder;
 use App\Models\ServiceOrderDetail;
@@ -23,54 +25,22 @@ class WorkOrderService extends Base
     public static function pushOrder($request)
     {
 
-        DB::beginTransaction();
         $orderData = $request->order;
         $orderDetailData = $request->orderdetail;
-        $order = self::createOrder($orderData);
-        if($order){
-            $orderid = $order->order_id;
-            $orderDetailData = array_map(function ($data) use($orderid){
-                    $data['order_id'] = $orderid;
-                return $data;
-            },$orderDetailData);
-            $detail = self::createDetail($orderDetailData);
-            if($detail){
-                DB::commit();
-                return $order;
+        $orderBuyerData = $request->orderbuyer;
+        return DB::transaction(function () use ($orderData, $orderDetailData, $orderBuyerData) {
+            //创建订单
+            $serviceOrder = ServiceOrder::create($orderData);
+            //关联模型创建收件信息
+            $serviceOrder->serviceOrderBuyer()->save(new ServiceOrderBuyer($orderBuyerData));
+            //关联模型创建订单详情
+            $serviceDetailArr = [];
+            foreach ($orderDetailData as $data) {
+               $serviceDetailArr[] =  new ServiceOrderDetail($data);
             }
-        }
-        DB::rollback();
-        return false;
-    }
-
-    /**
-     * 创建订单信息
-     * @param $order
-     * @return mixed
-     * @throws Exception
-     */
-    protected  static function createOrder($order)
-    {
-      try{
-          return ServiceOrder::create($order);
-      }catch (Exception $exception){
-          throw $exception;
-      }
-    }
-
-    /**
-     * 创建订单详情
-     * @param $detail
-     * @return mixed
-     * @throws Exception
-     */
-    protected static function createDetail($detail)
-    {
-        try{
-            return ServiceOrderDetail::insert($detail);
-        }catch (Exception $exception){
-            throw $exception;
-        }
+            $serviceOrder->serviceOrderDetails()->saveMany($serviceDetailArr);
+            return $serviceOrder;
+        });
     }
 
 
@@ -81,7 +51,7 @@ class WorkOrderService extends Base
      */
     public static function getWorkOrder($orderId)
     {
-        return ServiceOrder::where(['order_id'=>$orderId])->first();
+        return ServiceOrder::where(['order_id' => $orderId])->first();
     }
 
     /**
@@ -92,11 +62,11 @@ class WorkOrderService extends Base
     public static function getOrderSubWeight($orderId)
     {
         $subWeight = 0;
-        $serviceDetails= ServiceOrderDetail::where(['order_id'=>$orderId])->get(['pack_weight','qty']);
-        foreach ($serviceDetails as $detail){
+        $serviceDetails = ServiceOrderDetail::where(['order_id' => $orderId])->get(['pack_weight', 'qty']);
+        foreach ($serviceDetails as $detail) {
             $subWeight += round($detail->pack_weight) * $detail->qty;
         }
-        return (int) $subWeight;
+        return (int)$subWeight;
 
     }
 

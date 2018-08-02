@@ -6,10 +6,10 @@ use Illuminate\Database\Eloquent\Model;
 
 class ServiceOrderBuyer extends Base
 {
-    // protected $guarded  = [];
+     protected $guarded  = [];
 
     public function serviceOrder()
     {
-        return $this->hasOne('App\Models\ServiceOrder','order_id','order_id');
+        return $this->belongsTo('App\Models\ServiceOrder','order_id','order_id');
     }
 }
