@@ -35,6 +35,7 @@ abstract class BaseChannel
         if(is_array($config)){
             $this->config = array_merge($this->config, $config);
         }
+        $this->setCurrentDockType($this->pushDockSequence[0]);
         $this->init();
     }
 
@@ -185,7 +186,68 @@ abstract class BaseChannel
         $this->responseBody = $responseBody;
     }
 
+    /**
+     * 当前执行的流程
+     * @var
+     */
+    protected $currentDockType;
 
+    /**
+     * 设置当前执行的流程
+     * @param $currentDockType
+     * @return $this
+     */
+    public function setCurrentDockType($currentDockType)
+    {
+        $this->currentDockType = $currentDockType;
+        $this->config = array_merge($this->config,$this->config[$currentDockType]);
+        return $this;
+    }
+
+    /**
+     * 获取当前执行的流程
+     * @return mixed
+     */
+    public function getCurrentDockType()
+    {
+        return $this->currentDockType;
+    }
+
+    /**
+     * 订单模型
+     * @var
+     */
+    protected $workOrder;
+
+    /**
+     * 设置订单model
+     * @param Model $workOrder
+     * @return $this
+     */
+    public function setWorkOrder(Model $workOrder)
+    {
+        $this->workOrder = $workOrder;
+        return $this;
+    }
+
+    /**
+     * 获取订单model
+     * @return mixed
+     */
+    public function getWorkOrder()
+    {
+        return $this->workOrder;
+    }
+
+    /**
+     * 设置订单下一步流程
+     * @param $nextDockType
+     */
+    public function nextDockType($nextDockType)
+    {
+        $this->workOrder->current_dock_type = $nextDockType;
+        $this->workOrder->save();
+    }
 
     protected function send()
     {
@@ -266,7 +328,7 @@ abstract class BaseChannel
     {
         try {
             $client = new \SoapClient ($this->url, $this->headers);
-            $response = $client->__soapCall($this->method, $this->requestBody);
+            $response = $client->__soapCall($this->method, $this->getRequestBody());
             $jsonResponse = json_decode($response, true);
             $this->setResponseBody($jsonResponse ? $jsonResponse : $response);
         }catch (\SoapFault $fault){
@@ -277,11 +339,15 @@ abstract class BaseChannel
 
     /**
      * 执行入口
-     * @param Model $workOrder
-     * @param string $dockType
      * @return mixed
      */
-    abstract public function run(Model $workOrder, $dockType = '');
+    public function run()
+    {
+        if(!empty($this->workOrder)){
+            return $this->formatData()->send();
+        }
+    }
+
     /**
      * 请求成功后回调
      * @param array $data 请求信息
@@ -291,11 +357,9 @@ abstract class BaseChannel
 
     /**
      * 组装请求的数据
-     * @param array $data 数据
-     * @param string $type 数据类型
      * @return array
      */
-    abstract protected function formatData($data, $type = '');
+    abstract protected function formatData();
 
 
     /**

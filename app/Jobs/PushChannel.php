@@ -46,7 +46,7 @@ class PushChannel implements ShouldQueue
             $workOrder = WorkOrderService::getWorkOrder($this->orderId);
             //订单数据为空 处理
             if(empty($workOrder)){
-                //TODO 需要想错误的处理流程
+                //失败对接的事件通知
             }
             //订单表记录的当前标记的流程
             $current_dock_type = $workOrder->current_dock_type;
@@ -55,12 +55,14 @@ class PushChannel implements ShouldQueue
             if((!empty($current_dock_type) && $current_dock_type !=$dockType)|| ($key>0 && empty($current_dock_type))){
                 continue;
             }
-            Log::info($this->workChannel->run($workOrder, $dockType));
+//            Log::info($this->workChannel->run($workOrder, $dockType));
+            //获取当前流程的配置
+
             //传入数据执行对接
-            if($this->workChannel->run($workOrder, $dockType)){
-               //TODO 需要想成功的处理流程
+            if($this->workChannel->setWorkOrder($workOrder)->setCurrentDockType($current_dock_type)->run()){
+                //成功对接的事件通知
                 //渠道对接 下一流程
-//                $this->workChannel->nextDockType(isset($pushDockSequence[$key+1])?$pushDockSequence[$key+1]:'end');
+                $this->workChannel->nextDockType($workOrder,isset($pushDockSequence[$key+1])?$pushDockSequence[$key+1]:'end');
             }
         }
     }
