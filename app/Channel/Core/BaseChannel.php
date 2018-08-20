@@ -35,7 +35,6 @@ abstract class BaseChannel
         if(is_array($config)){
             $this->config = array_merge($this->config, $config);
         }
-        $this->setCurrentDockType($this->pushDockSequence[0]);
         $this->init();
     }
 
@@ -197,8 +196,11 @@ abstract class BaseChannel
      * @param $currentDockType
      * @return $this
      */
-    public function setCurrentDockType($currentDockType)
+    public function setCurrentDockType($currentDockType = '')
     {
+       if(empty($currentDockType)){
+           $currentDockType = $this->pushDockSequence[0];
+       }
         $this->currentDockType = $currentDockType;
         $this->config = array_merge($this->config,$this->config[$currentDockType]);
         return $this;
@@ -245,6 +247,7 @@ abstract class BaseChannel
      */
     public function nextDockType($nextDockType)
     {
+        Log::info('下一流程：'.$nextDockType);
         $this->workOrder->current_dock_type = $nextDockType;
         $this->workOrder->save();
     }
@@ -343,10 +346,21 @@ abstract class BaseChannel
      */
     public function run()
     {
-        if(!empty($this->workOrder)){
-            return $this->formatData()->send();
+        if(empty($this->workOrder)){
+            return false;
         }
+        if($this->filters()){
+            return false;
+        }
+        return $this->formatData()->send();
     }
+
+    /**
+     * 执行前的前置判断
+     * @return mixed
+     */
+    abstract protected function filters();
+
 
     /**
      * 请求成功后回调

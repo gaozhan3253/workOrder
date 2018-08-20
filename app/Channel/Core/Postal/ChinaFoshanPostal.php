@@ -73,6 +73,10 @@ class ChinaFoshanPostal extends BaseChannel
         }
         return $this;
     }
+    protected function filters()
+    {
+        return false;
+    }
 
     protected function pushOrderData()
     {

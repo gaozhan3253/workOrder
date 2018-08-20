@@ -45,7 +45,6 @@ class Yunlu  extends BaseChannel
     ];
 
 
-
     protected function formatData()
     {
         switch ($this->currentDockType) {
@@ -57,6 +56,24 @@ class Yunlu  extends BaseChannel
                 break;
         }
         return $this;
+    }
+
+    protected function filters()
+    {
+        switch ($this->currentDockType) {
+            case self::GET_LABEL:
+                $status = $this->workOrder->status;
+                if($status != 1){
+                    return true;
+                }
+                $logistics = $this->workOrder->serviceOrderLogistics;
+                if(!isset($logistics) || $logistics->track_no ==''){
+                    return true;
+                }
+                sleep(10);
+                break;
+        }
+        return false;
     }
 
     protected function pushOrderData()
@@ -167,10 +184,13 @@ class Yunlu  extends BaseChannel
         switch ($this->currentDockType) {
             case self::PUSH_ORDER:
                 //对推送订单返回的信息做处理
+
+                return true;
                 break;
             case self::GET_LABEL:
                 //对推送订单返回的信息做处理
-            break;
+                return true;
+                break;
         }
     }
 
